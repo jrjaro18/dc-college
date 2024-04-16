@@ -19,7 +19,7 @@ export default function AllProducts() {
     useEffect(() => {
         const f = async () => {
             try {
-                const res = await axios.get('http://127.0.0.1:5000/api/user/all-items', {})
+                const res = await axios.get('http://127.0.0.1:5000/api/item', {})
                 console.log(res.data);
                 setProducts(res.data);
             } catch (error) {

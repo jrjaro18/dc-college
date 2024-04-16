@@ -24,6 +24,7 @@ func main() {
 	api := app.Group("/api")
 	routes.UserRoutes(api)
 	routes.SellerRoutes(api)
+	routes.ItemRoutes(api)
 
 	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.SendString("Pinging...")

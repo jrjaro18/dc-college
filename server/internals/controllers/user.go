@@ -13,6 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+var mainServerLamportTime = 0
+
 func GetAllUsers(c *fiber.Ctx) error {
 	//get all users without their passwords
 	var users []models.User
@@ -51,7 +53,13 @@ func CreateUser(c *fiber.Ctx) error {
 		})
 	}
 	var reply string
-	err = client.Call("API.CreateUser", user, &reply)
+
+	data := models.LamportRequest{*user, mainServerLamportTime}
+	fmt.Println(data)
+	err = client.Call("API.CreateUser", data, &reply)
+
+	mainServerLamportTime++
+	fmt.Println("Main Server Updated Lamport Time: ", mainServerLamportTime)
 	if err != nil {
 		fmt.Println("Error in Calling")
 		fmt.Println(err.Error())
@@ -342,23 +350,6 @@ func PreviouslyBought(c *fiber.Ctx) error {
 	// remove the password from the response
 	result.Password = ""
 	return c.Status(fiber.StatusAccepted).JSON(items)
-}
-
-func GetAllItems(c *fiber.Ctx) error {
-	var items []models.Item
-	cursor, err := database.Item.Find(context.Background(), bson.M{})
-	//store all the items in the items array
-	for cursor.Next(context.Background()) {
-		var item models.Item
-		cursor.Decode(&item)
-		items = append(items, item)
-	}
-
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	return c.JSON(items)
 }
 
 func AddToLogs(s string) error {

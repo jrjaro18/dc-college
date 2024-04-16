@@ -13,6 +13,9 @@ import (
 
 type API int
 
+var rpcServerLamportTime = 0
+
+
 func Init() {
 	fmt.Println("Starting RPC Server")
 	var api_rpc = new(API)
@@ -63,7 +66,18 @@ func (a *API) CreateSeller(seller models.Seller, reply *string) error {
 	return nil
 }
 
-func (a *API) CreateUser(user models.User, reply *string) error {
+func (a *API) CreateUser(req models.LamportRequest, reply *string) error {
+
+	user := req.User
+	reqTime := req.LamportTime
+
+	fmt.Printf("Request Time: %d, RPC Server Time: %d\n", reqTime, rpcServerLamportTime)
+
+	if(reqTime > rpcServerLamportTime){
+		rpcServerLamportTime = reqTime
+	}
+	rpcServerLamportTime++
+	fmt.Println("Updated RPC Server Time: ", rpcServerLamportTime)
 
 	// if username or email or password is empty then return error
 	if user.Username == "" || user.Email == "" || user.Password == "" {

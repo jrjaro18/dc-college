@@ -15,5 +15,4 @@ func UserRoutes(app fiber.Router) {
 	routes.Post("/cart", controllers.GetCart)
 	routes.Post("/buy", controllers.Buy)
 	routes.Post("/previouslyBought", controllers.PreviouslyBought)
-	routes.Get("/all-items", controllers.GetAllItems)
 }

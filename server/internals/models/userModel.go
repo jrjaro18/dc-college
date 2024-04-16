@@ -13,4 +13,9 @@ type User struct {
 	PreviouslyBought []primitive.ObjectID `json:"previouslyBought" bson:"previouslyBought"`
 }
 
+type LamportRequest struct {
+	User User
+	LamportTime int
+}
+
 
