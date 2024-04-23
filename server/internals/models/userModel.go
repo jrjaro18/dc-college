@@ -15,7 +15,8 @@ type User struct {
 
 type LamportRequest struct {
 	User User
+	Seller Seller
 	LamportTime int
 }
 
-
+var MainServerLamportTime = 0

@@ -7,7 +7,7 @@ export default function Profile() {
 
   React.useEffect(() => {
     const f = async () => {
-      const res = await axios.post("http://localhost:5000/api/user/previouslyBought", {
+      const res = await axios.post("http://localhost/api/user/previouslyBought", {
         email: localStorage.getItem('email')
       })
       console.log(res.data)

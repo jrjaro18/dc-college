@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import { useNavigation } from 'react-router-dom';
 
 export default function SignUp() {
@@ -19,7 +19,7 @@ export default function SignUp() {
             return;
         }
         try {
-            const res = await axios.post('http://localhost:5000/api/user/create', {
+            const res = await axios.post('http://localhost/api/user/create', {
                 username: name,
                 email: email,
                 password: password
@@ -28,7 +28,7 @@ export default function SignUp() {
             if (res.status === 201) {
                 alert('User created successfully');
                 // redirect to login page
-                window.location.href = '/login';         
+                window.location.href = '/login';
             }
         } catch (error) {
             console.log(error);
@@ -43,7 +43,7 @@ export default function SignUp() {
             <div className='mt-10'>
                 <div className='flex justify-between border-b-2 p-3 m-2 bg-gray-300 '>
                     <div>Name</div>
-                    <input type='text' className='border-2' 
+                    <input type='text' className='border-2'
                         onChange={(e) => {
                             setName(e.target.value);
                         }}
@@ -51,7 +51,7 @@ export default function SignUp() {
                 </div>
                 <div className='flex justify-between border-b-2 p-3 m-2 bg-gray-300 '>
                     <div>Email</div>
-                    <input type='text' className='border-2' 
+                    <input type='text' className='border-2'
                         onChange={(e) => {
                             setEmail(e.target.value);
                         }}
@@ -59,7 +59,7 @@ export default function SignUp() {
                 </div>
                 <div className='flex justify-between border-b-2 p-3 m-2 bg-gray-300 '>
                     <div>Password</div>
-                    <input type='password' className='border-2' 
+                    <input type='password' className='border-2'
                         onChange={(e) => {
                             setPassword(e.target.value);
                         }}
@@ -67,7 +67,7 @@ export default function SignUp() {
                 </div>
                 <div className='flex justify-between border-b-2 p-3 m-2 bg-gray-300 '>
                     <div>Confirm Password</div>
-                    <input type='password' className='border-2' 
+                    <input type='password' className='border-2'
                         onChange={(e) => {
                             setConfirmPassword(e.target.value);
                         }}

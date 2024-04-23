@@ -3,20 +3,23 @@ package controllers
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/rpc"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jrjaro18/tryingDC/internals/database"
 	"github.com/jrjaro18/tryingDC/internals/models"
+	"github.com/jrjaro18/tryingDC/internals/redis"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func CreateSeller(c *fiber.Ctx) error {
 	// send the request to the rpc server to create a seller
-	client, err := rpc.DialHTTP("tcp", ":1234")
+	client, err := rpc.DialHTTP("tcp", "172.16.40.205:1234")
 	if err != nil {
 		fmt.Println("Error in Dialing")
 		fmt.Println(err.Error())
@@ -35,7 +38,14 @@ func CreateSeller(c *fiber.Ctx) error {
 	}
 
 	var reply string
-	err = client.Call("API.CreateSeller", seller, &reply)
+	// err = client.Call("API.CreateSeller", seller, &reply)
+
+	data := models.LamportRequest{Seller: *seller,  LamportTime: models.MainServerLamportTime}
+	fmt.Println(data)
+	err = client.Call("API.CreateSeller", data, &reply)
+
+	models.MainServerLamportTime++
+	fmt.Println("Main Server Updated Lamport Time: ", models.MainServerLamportTime)
 	if err != nil {
 		fmt.Println("Error in Calling")
 		fmt.Println(err.Error())
@@ -145,6 +155,50 @@ func AddItem(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Error updating seller",
 		})
+	}
+	// redis
+	itemJSON, err := json.Marshal(item)
+	if err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error marshaling item",
+		})
+	}
+	key := fmt.Sprintf("item:%s", item.ID.Hex())
+	err = redis.RedisClient.Set(context.Background(), key, itemJSON, 24*time.Hour).Err() // Cache item for 24 hours
+	if err != nil {
+		fmt.Println(err)
+		// Handle cache error (optional)
+	}
+
+	// Get the current value of the "all_items" cache key
+	allItemsJSON, err := redis.RedisClient.Get(context.Background(), "all_items").Bytes()
+	var allItems []models.Item
+	if err == nil {
+		// Unmarshal the current value of "all_items" into a slice of items
+		err = json.Unmarshal(allItemsJSON, &allItems)
+		if err != nil {
+			fmt.Println(err)
+			// Handle unmarshal error (optional)
+		}
+	}
+	// Append the new item to the slice of items
+	allItems = append(allItems, *item)
+	if len(allItems) > 5 {
+		// Return only the last 5 items
+		allItems = allItems[len(allItems)-5:]
+	}
+	// Marshal the updated slice of items to JSON
+	allItemsJSON, err = json.Marshal(allItems)
+	if err != nil {
+		fmt.Println(err)
+		// Handle marshal error (optional)
+	}
+	// Update the value of the "all_items" cache key
+	err = redis.RedisClient.Set(context.Background(), "all_items", allItemsJSON, 24*time.Hour).Err() // Cache item for 24 hours
+	if err != nil {
+		fmt.Println(err)
+		// Handle cache error (optional)
 	}
 	return c.Status(fiber.StatusCreated).JSON(item)
 }

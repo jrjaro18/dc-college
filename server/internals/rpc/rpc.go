@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"net/rpc"
 	"net/http"
+	"net/rpc"
 	"github.com/jrjaro18/tryingDC/internals/database"
 	"github.com/jrjaro18/tryingDC/internals/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,7 +14,6 @@ import (
 type API int
 
 var rpcServerLamportTime = 0
-
 
 func Init() {
 	fmt.Println("Starting RPC Server")
@@ -31,14 +30,25 @@ func Init() {
 		fmt.Println(err.Error())
 	}
 	fmt.Println("Listening on port 1234")
-	
+
 	http.Serve(listener, nil)
 	listener.Close()
 	fmt.Println("RPC Server closed")
 }
 
-func (a *API) CreateSeller(seller models.Seller, reply *string) error {
-	// if username or email or password is empty then return error
+func (a *API) CreateSeller(req models.LamportRequest, reply *string) error {
+	// if username or email or password is empty then return error	
+	seller := req.Seller
+	reqTime := req.LamportTime
+
+	fmt.Printf("Request Time: %d, RPC Server Time: %d\n", reqTime, rpcServerLamportTime)
+
+	if reqTime > rpcServerLamportTime {
+		rpcServerLamportTime = reqTime
+	}
+	rpcServerLamportTime++
+	fmt.Println("Updated RPC Server Time: ", rpcServerLamportTime)
+
 	if seller.Username == "" || seller.Email == "" || seller.Password == "" {
 		fmt.Printf("Username: %s, Email: %s, Password: %s\n", seller.Username, seller.Email, seller.Password)
 		*reply = "Username, Email or Password is empty"
@@ -73,7 +83,7 @@ func (a *API) CreateUser(req models.LamportRequest, reply *string) error {
 
 	fmt.Printf("Request Time: %d, RPC Server Time: %d\n", reqTime, rpcServerLamportTime)
 
-	if(reqTime > rpcServerLamportTime){
+	if reqTime > rpcServerLamportTime {
 		rpcServerLamportTime = reqTime
 	}
 	rpcServerLamportTime++

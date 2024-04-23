@@ -13,7 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var mainServerLamportTime = 0
 
 func GetAllUsers(c *fiber.Ctx) error {
 	//get all users without their passwords
@@ -37,7 +36,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 func CreateUser(c *fiber.Ctx) error {
 	// send the incoming request to rpc server to create a user
-	client, err := rpc.DialHTTP("tcp", ":1234")
+	client, err := rpc.DialHTTP("tcp", "172.16.40.205:1234")
 	if err != nil {
 		fmt.Println("Error in Dialing")
 		fmt.Println(err.Error())
@@ -54,12 +53,12 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 	var reply string
 
-	data := models.LamportRequest{*user, mainServerLamportTime}
+	data := models.LamportRequest{User: *user,  LamportTime: models.MainServerLamportTime}
 	fmt.Println(data)
 	err = client.Call("API.CreateUser", data, &reply)
 
-	mainServerLamportTime++
-	fmt.Println("Main Server Updated Lamport Time: ", mainServerLamportTime)
+	models.MainServerLamportTime++
+	fmt.Println("Main Server Updated Lamport Time: ", models.MainServerLamportTime)
 	if err != nil {
 		fmt.Println("Error in Calling")
 		fmt.Println(err.Error())

@@ -8,7 +8,7 @@ export default function Login() {
     const pressSubmit = async () => {
         console.log(email, password);
         try {
-            const res = await axios.post("http://localhost:5000/api/user/login", {
+            const res = await axios.post("http://localhost/api/user/login", {
                 email: email,
                 password: password
             })

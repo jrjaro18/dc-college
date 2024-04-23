@@ -19,7 +19,7 @@ export default function AllProducts() {
     useEffect(() => {
         const f = async () => {
             try {
-                const res = await axios.get('http://127.0.0.1:5000/api/item', {})
+                const res = await axios.get('http://localhost/api/item', {})
                 console.log(res.data);
                 setProducts(res.data);
             } catch (error) {
@@ -31,7 +31,7 @@ export default function AllProducts() {
 
     const handleAddToCart = async (id) => {
         try {
-            const res = await axios.post('http://localhost:5000/api/user/add', {
+            const res = await axios.post('http://localhost/api/user/add', {
                 email: localStorage.getItem('email'),
                 itemID: id
             })

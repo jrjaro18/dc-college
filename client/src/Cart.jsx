@@ -7,7 +7,7 @@ export default function Cart() {
 
     React.useEffect(() => {
         const f = async () => {
-            const res = await axios.post("http://localhost:5000/api/user/cart", {
+            const res = await axios.post("http://localhost/api/user/cart", {
                 email: localStorage.getItem('email')
             })
             console.log(res.data)
@@ -18,16 +18,16 @@ export default function Cart() {
     }, [])
 
     const onSubmitCart = async () => {
-        try{
-            const res = await axios.post("http://localhost:5000/api/user/buy", {
+        try {
+            const res = await axios.post("http://localhost/api/user/buy", {
                 email: localStorage.getItem('email'),
             })
             console.log(res.data)
-            if(res.status === 202){
+            if (res.status === 202) {
                 alert('Successfully Bought')
                 window.location.reload()
             }
-        } catch(err){
+        } catch (err) {
             console.log(err)
         }
     }
